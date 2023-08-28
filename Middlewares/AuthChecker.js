@@ -1,6 +1,7 @@
 const express = require('express');
 require('dotenv').config();
-const ConnectDb = require('./Db/Database');
+const ConnectDb = require('./DB/Database');
+const authRourter = require('./Routes/AuthRoutes');
 
 const app = express();
 
@@ -13,3 +14,4 @@ app.listen(port, () => {
 });
 
 app.use(express.json());
+app.use('/api/v1/auth', authRourter);
