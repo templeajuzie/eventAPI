@@ -4,6 +4,11 @@ import { Request, Response } from 'express';
 import User from '../Models/AuthSchema';
 import { UserJoiSchema } from '../Utils/AuthJoiSchema';
 import { StatusCodes } from 'http-status-codes';
+import {CreateTokenRequest} from '../Helpers/CreateToken';
+import * as dotenv from 'dotenv';
+dotenv.config();
+
+const secreteKey = process.env.SECRETE_KEY;
 
 interface UserSignUpInterface {
   firstName: string;
@@ -90,11 +95,11 @@ export const signIn = async (req: Request, res: Response) => {
         .json({ message: 'Invalid credentials' });
     }
 
-    // const token = jwt.sign({ email: oldUser.email, id: oldUser._id }, 'test', {
-    //   expiresIn: '1h',
-    // });
+    const token = CreateTokenRequest({ email: oldUser.email, id: oldUser._id })
 
-    res.status(StatusCodes.OK).json({ result: oldUser });
+    res.setHeader('Authorization', 'Bearer ' + token);
+    res.status(StatusCodes.OK).json(oldUser);
+    
   } catch (error) {
     res
       .status(StatusCodes.INTERNAL_SERVER_ERROR)

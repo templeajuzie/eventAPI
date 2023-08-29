@@ -1,4 +1,27 @@
 "use strict";
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -16,6 +39,10 @@ exports.signIn = exports.signUp = void 0;
 const AuthSchema_1 = __importDefault(require("../Models/AuthSchema"));
 const AuthJoiSchema_1 = require("../Utils/AuthJoiSchema");
 const http_status_codes_1 = require("http-status-codes");
+const CreateToken_1 = require("../Helpers/CreateToken");
+const dotenv = __importStar(require("dotenv"));
+dotenv.config();
+const secreteKey = process.env.SECRETE_KEY;
 const signUp = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { firstName, lastName, birthDate, city, country, email, password, confirmPassword, } = req.body;
     try {
@@ -62,10 +89,9 @@ const signIn = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
                 .status(http_status_codes_1.StatusCodes.BAD_REQUEST)
                 .json({ message: 'Invalid credentials' });
         }
-        // const token = jwt.sign({ email: oldUser.email, id: oldUser._id }, 'test', {
-        //   expiresIn: '1h',
-        // });
-        res.status(http_status_codes_1.StatusCodes.OK).json({ result: oldUser });
+        const token = (0, CreateToken_1.CreateTokenRequest)({ email: oldUser.email, id: oldUser._id });
+        res.setHeader('Authorization', 'Bearer ' + token);
+        res.status(http_status_codes_1.StatusCodes.OK).json(oldUser);
     }
     catch (error) {
         res
