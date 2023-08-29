@@ -1,13 +1,19 @@
-import express, { Express, Request, Response } from 'express';
+import express, { Request, Response } from 'express';
+import * as dotenv from 'dotenv';
+dotenv.config();
+import Router from './Routes/AuthRoutes';
 
-const app: Express = express();
+import ConnectDb from './Db/Database';
 
-const port = 8000;
+const app = express();
 
-app.get('/', (req: Request, res: Response) => {
-  res.send('Hello Temple, Welcome to Typescript!...');
-});
+ConnectDb();
+
+const port = process.env.PORT || 5000;
 
 app.listen(port, () => {
   console.log(`app is running on port ${port}`);
 });
+
+app.use(express.json());
+app.use('/api/v1', Router);
