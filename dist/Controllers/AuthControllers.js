@@ -42,7 +42,8 @@ const http_status_codes_1 = require("http-status-codes");
 const CreateToken_1 = require("../Helpers/CreateToken");
 const dotenv = __importStar(require("dotenv"));
 dotenv.config();
-const secreteKey = process.env.SECRETE_KEY;
+// const secreteKey: Secret = process.env.SECRETE_KEY || 'secrete';
+const secreteKey = 'secrete';
 const signUp = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { firstName, lastName, birthDate, city, country, email, password, confirmPassword, } = req.body;
     try {
@@ -89,9 +90,9 @@ const signIn = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
                 .status(http_status_codes_1.StatusCodes.BAD_REQUEST)
                 .json({ message: 'Invalid credentials' });
         }
-        const token = (0, CreateToken_1.CreateTokenRequest)({ email: oldUser.email, id: oldUser._id });
+        const token = (0, CreateToken_1.CreateTokenRequest)({ id: oldUser._id });
         res.setHeader('Authorization', 'Bearer ' + token);
-        res.status(http_status_codes_1.StatusCodes.OK).json(oldUser);
+        res.status(http_status_codes_1.StatusCodes.OK).json({ data: oldUser, token: token });
     }
     catch (error) {
         res

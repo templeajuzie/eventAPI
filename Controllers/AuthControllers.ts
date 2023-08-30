@@ -1,5 +1,5 @@
 import bcrypt from 'bcrypt';
-import jwt from 'jsonwebtoken';
+import jwt, { Secret } from 'jsonwebtoken';
 import { Request, Response } from 'express';
 import User from '../Models/AuthSchema';
 import { UserJoiSchema } from '../Utils/AuthJoiSchema';
@@ -8,7 +8,8 @@ import {CreateTokenRequest} from '../Helpers/CreateToken';
 import * as dotenv from 'dotenv';
 dotenv.config();
 
-const secreteKey = process.env.SECRETE_KEY;
+// const secreteKey: Secret = process.env.SECRETE_KEY || 'secrete';
+const secreteKey: Secret =  'secrete';
 
 interface UserSignUpInterface {
   firstName: string;
@@ -95,10 +96,11 @@ export const signIn = async (req: Request, res: Response) => {
         .json({ message: 'Invalid credentials' });
     }
 
-    const token = CreateTokenRequest({ email: oldUser.email, id: oldUser._id })
+    const token = CreateTokenRequest({ id: oldUser._id })
 
     res.setHeader('Authorization', 'Bearer ' + token);
-    res.status(StatusCodes.OK).json(oldUser);
+    res.status(StatusCodes.OK).json({data: oldUser, token: token});
+    
     
   } catch (error) {
     res

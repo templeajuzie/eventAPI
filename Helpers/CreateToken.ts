@@ -1,9 +1,9 @@
-import jwt from 'jsonwebtoken';
+import jwt, { Secret } from 'jsonwebtoken';
 import { Request, Response, NextFunction } from 'express';
 import * as dotenv from 'dotenv';
 dotenv.config();
 
-const secreteKey = process.env.SECRETE_KEY || '';
+const secreteKey: Secret = 'secrete';
 
 const MaxAge = 3*24*60*60;
 

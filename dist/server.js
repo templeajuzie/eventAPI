@@ -30,6 +30,7 @@ const express_1 = __importDefault(require("express"));
 const dotenv = __importStar(require("dotenv"));
 dotenv.config();
 const AuthRoutes_1 = __importDefault(require("./Routes/AuthRoutes"));
+const EventRoutes_1 = __importDefault(require("./Routes/EventRoutes"));
 const Database_1 = __importDefault(require("./Db/Database"));
 const app = (0, express_1.default)();
 (0, Database_1.default)();
@@ -39,3 +40,4 @@ app.listen(port, () => {
 });
 app.use(express_1.default.json());
 app.use('/api/v1', AuthRoutes_1.default);
+app.use('/api/v1', EventRoutes_1.default);

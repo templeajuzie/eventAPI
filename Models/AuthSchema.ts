@@ -1,11 +1,11 @@
-import mongoose from 'mongoose';
+import mongoose, { Document, Schema  } from 'mongoose';
 import bcrypt from 'bcrypt';
 import { Request, Response } from 'express';
 
 const saltRounds = 10;
 const gensalt = bcrypt.genSalt(saltRounds);
 
-interface User {
+export interface UserInterface extends Document {
   firstName: string;
   lastName: string;
   birthDate: string;
@@ -17,7 +17,7 @@ interface User {
   compareUserPassword(password: string): Promise<boolean>;
 }
 
-const UserSchema = new mongoose.Schema<User>(
+const UserSchema = new mongoose.Schema<UserInterface>(
   {
     firstName: {
       type: String,

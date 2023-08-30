@@ -1,7 +1,8 @@
 import express, { Request, Response } from 'express';
 import * as dotenv from 'dotenv';
 dotenv.config();
-import Router from './Routes/AuthRoutes';
+import authRouter from './Routes/AuthRoutes';
+import eventRouter from './Routes/EventRoutes';
 
 import ConnectDb from './Db/Database';
 
@@ -16,4 +17,5 @@ app.listen(port, () => {
 });
 
 app.use(express.json());
-app.use('/api/v1', Router);
+app.use('/api/v1', authRouter);
+app.use('/api/v1', eventRouter);

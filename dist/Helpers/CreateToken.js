@@ -30,7 +30,7 @@ exports.CreateTokenRequest = void 0;
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const dotenv = __importStar(require("dotenv"));
 dotenv.config();
-const secreteKey = process.env.SECRETE_KEY || '';
+const secreteKey = 'secrete';
 const MaxAge = 3 * 24 * 60 * 60;
 const CreateTokenRequest = (payload) => {
     const createToken = jsonwebtoken_1.default.sign(payload, secreteKey, { expiresIn: MaxAge });
