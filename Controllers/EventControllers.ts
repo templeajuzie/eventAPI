@@ -4,6 +4,11 @@ import { UserInterface } from '../Models/AuthSchema';
 import Event from '../Models/EventSchema';
 import { EventJoiSchema } from '../Utils/EventJoiSchema';
 
+import {
+  NotFoundError,
+  ValidationError,
+  UnauthorizedError,
+} from '../Error/Index';
 
 export const createEvent = async (req: Request, res: Response) => {
   const { description, dayOfWeek } = req.body;
@@ -11,14 +16,10 @@ export const createEvent = async (req: Request, res: Response) => {
   try {
     const getUserId = await (req as any).user._id.toString();
 
-    console.log(getUserId);
-    // const checkUser = await (req as any).use;
 
     if (!getUserId) {
-      return false;
+      throw new UnauthorizedError('Unauthorized');
     }
-
-    console.log(true + 'user account exists');
 
     const { error, value } = EventJoiSchema.validate({
       description,
@@ -27,18 +28,14 @@ export const createEvent = async (req: Request, res: Response) => {
     });
 
     if (error) {
-      return res.send(error);
+      throw new ValidationError(error.message);
     }
-
-    console.log('create event in progress');
 
     const createEvent = await Event.create(value);
 
-    console.log('create event in progress');
-
     res.status(StatusCodes.CREATED).json(createEvent);
   } catch (error) {
-    return res.status(StatusCodes.UNAUTHORIZED).json(error);
+    res.status(StatusCodes.INTERNAL_SERVER_ERROR).json(error);
   }
 };
 
@@ -46,42 +43,39 @@ export const getEvent = async (req: Request, res: Response) => {
   try {
     const getUserId = await (req as any).user._id.toString();
 
-    console.log(getUserId);
-    // const checkUser = await (req as any).use;
-
     if (!getUserId) {
-      return false;
+      throw new UnauthorizedError('Unauthorized');
     }
 
     const getUserEvent = await Event.find({ userId: getUserId });
 
     if (!getUserEvent) {
-      return res
-        .status(StatusCodes.NOT_FOUND)
-        .json({ message: 'User not found' });
+      throw new NotFoundError('Event not found');
     }
 
     res.status(StatusCodes.OK).json(getUserEvent);
-  } catch (error) {}
+  } catch (error) {
+    res.status(StatusCodes.INTERNAL_SERVER_ERROR).json(error);
+  }
 };
 
 export const deleteEventByDay = async (req: Request, res: Response) => {
   const eventDay = req.query;
 
-  console.log(eventDay);
-
   try {
     const getUserId: string = await (req as any).user._id.toString();
 
     if (!getUserId) {
-      return false;
+      throw new UnauthorizedError('Unauthorized');
     }
 
     const getallEvents = await Event.find(eventDay);
     await Event.deleteMany(eventDay).exec();
 
-    res.status(StatusCodes.OK).json({ deletedEvents: getallEvents });
-  } catch (error) {}
+    res.status(StatusCodes.NO_CONTENT).json({ deletedEvents: getallEvents });
+  } catch (error) {
+    res.status(StatusCodes.INTERNAL_SERVER_ERROR).json(error);
+  }
 };
 
 export const getSingleEventById = async (req: Request, res: Response) => {
@@ -91,19 +85,19 @@ export const getSingleEventById = async (req: Request, res: Response) => {
     const getUserId = await (req as any).user._id.toString();
 
     if (!getUserId) {
-      return false;
+      throw new UnauthorizedError('Unauthorized');
     }
 
     const getUserEvent = await Event.findById(id);
 
     if (!getUserEvent) {
-      return res
-        .status(StatusCodes.NOT_FOUND)
-        .json({ message: 'Event not found' });
+      throw new NotFoundError('Event not found');
     }
 
     res.status(StatusCodes.OK).json(getUserEvent);
-  } catch (error) {}
+  } catch (error) {
+    res.status(StatusCodes.INTERNAL_SERVER_ERROR).json(error);
+  }
 };
 
 export const deleteEventById = async (req: Request, res: Response) => {
@@ -113,19 +107,19 @@ export const deleteEventById = async (req: Request, res: Response) => {
     const getUserId = await (req as any).user._id.toString();
 
     if (!getUserId) {
-      return res
-        .status(StatusCodes.UNAUTHORIZED)
-        .json({ message: 'Unauthorized' });
+      throw new UnauthorizedError('Unauthorized');
     }
 
     const getUserEvent = await Event.findByIdAndDelete(id);
 
     if (!getUserEvent) {
-      return res
-        .status(StatusCodes.NOT_FOUND)
-        .json({ message: 'Event not found' });
+      throw new NotFoundError('Event not found');
     }
 
-    res.status(StatusCodes.OK).json({ message: 'Event deleted successfully' });
-  } catch (error) {}
+    res
+      .status(StatusCodes.NO_CONTENT)
+      .json({ message: 'Event deleted' });
+  } catch (error) {
+    res.status(StatusCodes.INTERNAL_SERVER_ERROR).json(error);
+  }
 };

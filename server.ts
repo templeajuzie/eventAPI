@@ -19,3 +19,6 @@ app.listen(port, () => {
 app.use(express.json());
 app.use('/api/v1', authRouter);
 app.use('/api/v1', eventRouter);
+app.get('*', (req, res) => {
+  res.status(404).send('404 - Page Not Found');
+});

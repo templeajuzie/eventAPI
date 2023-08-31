@@ -16,66 +16,61 @@ exports.deleteEventById = exports.getSingleEventById = exports.deleteEventByDay 
 const http_status_codes_1 = require("http-status-codes");
 const EventSchema_1 = __importDefault(require("../Models/EventSchema"));
 const EventJoiSchema_1 = require("../Utils/EventJoiSchema");
+const Index_1 = require("../Error/Index");
 const createEvent = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { description, dayOfWeek } = req.body;
     try {
         const getUserId = yield req.user._id.toString();
-        console.log(getUserId);
-        // const checkUser = await (req as any).use;
         if (!getUserId) {
-            return false;
+            throw new Index_1.UnauthorizedError('Unauthorized');
         }
-        console.log(true + 'user account exists');
         const { error, value } = EventJoiSchema_1.EventJoiSchema.validate({
             description,
             dayOfWeek,
             userId: getUserId,
         });
         if (error) {
-            return res.send(error);
+            throw new Index_1.ValidationError(error.message);
         }
-        console.log('create event in progress');
         const createEvent = yield EventSchema_1.default.create(value);
-        console.log('create event in progress');
         res.status(http_status_codes_1.StatusCodes.CREATED).json(createEvent);
     }
     catch (error) {
-        return res.status(http_status_codes_1.StatusCodes.UNAUTHORIZED).json(error);
+        res.status(http_status_codes_1.StatusCodes.INTERNAL_SERVER_ERROR).json(error);
     }
 });
 exports.createEvent = createEvent;
 const getEvent = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const getUserId = yield req.user._id.toString();
-        console.log(getUserId);
-        // const checkUser = await (req as any).use;
         if (!getUserId) {
-            return false;
+            throw new Index_1.UnauthorizedError('Unauthorized');
         }
         const getUserEvent = yield EventSchema_1.default.find({ userId: getUserId });
         if (!getUserEvent) {
-            return res
-                .status(http_status_codes_1.StatusCodes.NOT_FOUND)
-                .json({ message: 'User not found' });
+            throw new Index_1.NotFoundError('Event not found');
         }
         res.status(http_status_codes_1.StatusCodes.OK).json(getUserEvent);
     }
-    catch (error) { }
+    catch (error) {
+        res.status(http_status_codes_1.StatusCodes.INTERNAL_SERVER_ERROR).json(error);
+    }
 });
 exports.getEvent = getEvent;
 const deleteEventByDay = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const eventDay = req.query;
-    console.log(eventDay);
     try {
         const getUserId = yield req.user._id.toString();
         if (!getUserId) {
-            return false;
+            throw new Index_1.UnauthorizedError('Unauthorized');
         }
         const getallEvents = yield EventSchema_1.default.find(eventDay);
         yield EventSchema_1.default.deleteMany(eventDay).exec();
-        res.status(http_status_codes_1.StatusCodes.OK).json({ deletedEvents: getallEvents });
+        res.status(http_status_codes_1.StatusCodes.NO_CONTENT).json({ deletedEvents: getallEvents });
     }
-    catch (error) { }
+    catch (error) {
+        res.status(http_status_codes_1.StatusCodes.INTERNAL_SERVER_ERROR).json(error);
+    }
 });
 exports.deleteEventByDay = deleteEventByDay;
 const getSingleEventById = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
@@ -83,17 +78,17 @@ const getSingleEventById = (req, res) => __awaiter(void 0, void 0, void 0, funct
     try {
         const getUserId = yield req.user._id.toString();
         if (!getUserId) {
-            return false;
+            throw new Index_1.UnauthorizedError('Unauthorized');
         }
         const getUserEvent = yield EventSchema_1.default.findById(id);
         if (!getUserEvent) {
-            return res
-                .status(http_status_codes_1.StatusCodes.NOT_FOUND)
-                .json({ message: 'Event not found' });
+            throw new Index_1.NotFoundError('Event not found');
         }
         res.status(http_status_codes_1.StatusCodes.OK).json(getUserEvent);
     }
-    catch (error) { }
+    catch (error) {
+        res.status(http_status_codes_1.StatusCodes.INTERNAL_SERVER_ERROR).json(error);
+    }
 });
 exports.getSingleEventById = getSingleEventById;
 const deleteEventById = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
@@ -101,18 +96,18 @@ const deleteEventById = (req, res) => __awaiter(void 0, void 0, void 0, function
     try {
         const getUserId = yield req.user._id.toString();
         if (!getUserId) {
-            return res
-                .status(http_status_codes_1.StatusCodes.UNAUTHORIZED)
-                .json({ message: 'Unauthorized' });
+            throw new Index_1.UnauthorizedError('Unauthorized');
         }
         const getUserEvent = yield EventSchema_1.default.findByIdAndDelete(id);
         if (!getUserEvent) {
-            return res
-                .status(http_status_codes_1.StatusCodes.NOT_FOUND)
-                .json({ message: 'Event not found' });
+            throw new Index_1.NotFoundError('Event not found');
         }
-        res.status(http_status_codes_1.StatusCodes.OK).json({ message: 'Event deleted successfully' });
+        res
+            .status(http_status_codes_1.StatusCodes.NO_CONTENT)
+            .json({ message: 'Event deleted successfully' });
     }
-    catch (error) { }
+    catch (error) {
+        res.status(http_status_codes_1.StatusCodes.INTERNAL_SERVER_ERROR).json(error);
+    }
 });
 exports.deleteEventById = deleteEventById;

@@ -41,3 +41,6 @@ app.listen(port, () => {
 app.use(express_1.default.json());
 app.use('/api/v1', AuthRoutes_1.default);
 app.use('/api/v1', EventRoutes_1.default);
+app.get('*', (req, res) => {
+    res.status(404).send('404 - Page Not Found');
+});

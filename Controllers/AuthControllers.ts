@@ -4,32 +4,16 @@ import { Request, Response } from 'express';
 import User from '../Models/AuthSchema';
 import { UserJoiSchema } from '../Utils/AuthJoiSchema';
 import { StatusCodes } from 'http-status-codes';
-import {CreateTokenRequest} from '../Helpers/CreateToken';
-import * as dotenv from 'dotenv';
-dotenv.config();
+import { CreateTokenRequest } from '../Helpers/CreateToken';
 
-// const secreteKey: Secret = process.env.SECRETE_KEY || 'secrete';
-const secreteKey: Secret =  'secrete';
+import {
+  NotFoundError,
+  ValidationError,
+  UnauthorizedError,
+} from '../Error/Index';
 
-interface UserSignUpInterface {
-  firstName: string;
-  lastName: string;
-  birthDate: string;
-  city: string;
-  country: string;
-  email: string;
-  password: string;
-  confirmPassword: string;
-}
-
-interface UserSignInInterface {
-  email: string;
-  password: string;
-}
 
 export const signUp = async (req: Request, res: Response) => {
-  
-
   const {
     firstName,
     lastName,
@@ -39,15 +23,13 @@ export const signUp = async (req: Request, res: Response) => {
     email,
     password,
     confirmPassword,
-  } = req.body as UserSignUpInterface;
+  } = req.body;
 
   try {
     const oldUser = await User.findOne({ email });
 
     if (oldUser) {
-      return res
-        .status(StatusCodes.CONFLICT)
-        .json({ message: 'User already exists' });
+      throw new UnauthorizedError('Unauthorized');
     }
 
     const { error, value } = UserJoiSchema.validate({
@@ -62,49 +44,38 @@ export const signUp = async (req: Request, res: Response) => {
     });
 
     if (error) {
-      return res
-        .status(StatusCodes.BAD_REQUEST)
-        .json({ message: error.message });
+      throw new ValidationError(error.message);
     }
 
     const newUser = await User.create(value);
 
-    console.log(newUser);
-
     return res.status(StatusCodes.CREATED).json(newUser);
-  } catch (error) {}
+  } catch (error) {
+    res.status(StatusCodes.INTERNAL_SERVER_ERROR).json(error);
+  }
 };
 
 export const signIn = async (req: Request, res: Response) => {
-
-  const { email, password } = req.body as UserSignInInterface;
+  const { email, password } = req.body;
 
   try {
     const oldUser = await User.findOne({ email });
 
     if (!oldUser) {
-      return res
-        .status(StatusCodes.NOT_FOUND)
-        .json({ message: 'User does not exist' });
+      throw new NotFoundError('Not found');
     }
 
-    const isPasswordCorrect = await oldUser.compareUserPassword(password)
+    const isPasswordCorrect = await oldUser.compareUserPassword(password);
 
     if (!isPasswordCorrect) {
-      return res
-        .status(StatusCodes.BAD_REQUEST)
-        .json({ message: 'Invalid credentials' });
+      throw new UnauthorizedError('Unauthorized');
     }
 
-    const token = CreateTokenRequest({ id: oldUser._id })
+    const token = CreateTokenRequest({ id: oldUser._id });
 
     res.setHeader('Authorization', 'Bearer ' + token);
-    res.status(StatusCodes.OK).json({data: oldUser, token: token});
-    
-    
+    res.status(StatusCodes.OK).json({ data: oldUser, token: token });
   } catch (error) {
-    res
-      .status(StatusCodes.INTERNAL_SERVER_ERROR)
-      .json({ message: 'Something went wrong' });
+    res.status(StatusCodes.INTERNAL_SERVER_ERROR).json(error);
   }
 };

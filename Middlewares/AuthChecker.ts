@@ -2,17 +2,14 @@ import { Request, Response, NextFunction } from 'express';
 import jwt, { Secret } from 'jsonwebtoken';
 import { StatusCodes } from 'http-status-codes';
 import User from '../Models/AuthSchema';
-import * as dotenv from 'dotenv';
-dotenv.config();
 
-const secretKey: Secret = 'secrete';
+const secreteKey: Secret = process.env.SECRETE_KEY || 'secrete';
 
 export const checkUser = async (
   req: Request,
   res: Response,
   next: NextFunction
 ) => {
-  console.log('middleware check');
 
   const authHeader = req.headers.authorization;
   if (!authHeader) {
@@ -23,10 +20,8 @@ export const checkUser = async (
 
   const token = authHeader.split(' ')[1];
 
-  console.log('token exists');
-
   try {
-    const decodedToken: any = jwt.verify(token, secretKey);
+    const decodedToken: any = jwt.verify(token, secreteKey);
 
     const user = await User.findById(decodedToken.id);
     if (!user) {
@@ -39,8 +34,6 @@ export const checkUser = async (
 
     next();
   } catch (error) {
-    console.error('Error verifying token:', error);
-
     return res
       .status(StatusCodes.UNAUTHORIZED)
       .json({ message: 'Invalid token' });

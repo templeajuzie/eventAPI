@@ -30,14 +30,14 @@ exports.AuthChecker = void 0;
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const dotenv = __importStar(require("dotenv"));
 dotenv.config();
-const secreteKey = process.env.SECRETE_KEY || '';
+const secreteKey = process.env.SECRETE_KEY || 'secrete';
 const AuthChecker = (req, res, next) => {
     const authHeader = req.headers.authorization;
     const token = authHeader && authHeader.split(' ')[1];
     if (!token)
         return res.status(401).send('Access Denied');
     try {
-        const verified = jsonwebtoken_1.default.verify(token, secreteKey || '');
+        const verified = jsonwebtoken_1.default.verify(token, secreteKey);
         req.body.user = verified;
         next();
     }

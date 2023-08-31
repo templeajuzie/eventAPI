@@ -3,7 +3,7 @@ import { Request, Response, NextFunction } from 'express';
 import * as dotenv from 'dotenv';
 dotenv.config();
 
-const secreteKey: Secret = 'secrete';
+const secreteKey: Secret = process.env.SECRETE_KEY || 'secrete';
 
 const MaxAge = 3*24*60*60;
 
