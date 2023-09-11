@@ -1,12 +1,14 @@
 import type { Config } from '@jest/types';
 
+const baseDir = '<rootDir>/src/';
+const baseTestDir = '<rootDir>/src/test/';
+
 const config: Config.InitialOptions = {
   preset: 'ts-jest',
   testEnvironment: 'node',
-  setupFilesAfterEnv: ['./jest.setup.ts'],
-  moduleNameMapper: {
-    '^@/(.*)$': '<rootDir>/src/$1',
-  },
+  verbose: true,
+  collectCoverageFrom: [`${baseDir}/**/*.ts`],
+  testMatch: [`${baseTestDir}/**/*.test.ts`],
 };
 
 export default config;

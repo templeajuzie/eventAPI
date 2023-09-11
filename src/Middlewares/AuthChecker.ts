@@ -12,6 +12,7 @@ export const checkUser = async (
 ) => {
 
   const authHeader = req.headers.authorization;
+  
   if (!authHeader) {
     return res
       .status(StatusCodes.UNAUTHORIZED)

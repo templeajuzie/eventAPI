@@ -4,9 +4,9 @@ dotenv.config();
 import authRouter from './Routes/AuthRoutes';
 import eventRouter from './Routes/EventRoutes';
 
-import ConnectDb from './Db/Database';
+import {ConnectDb} from './Db/Database';
 
-const app = express();
+export const app = express();
 
 ConnectDb();
 
@@ -22,3 +22,5 @@ app.use('/api/v1', eventRouter);
 app.get('*', (req, res) => {
   res.status(404).send('404 - Page Not Found');
 });
+
+export default app;

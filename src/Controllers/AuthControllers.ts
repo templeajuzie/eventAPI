@@ -14,6 +14,7 @@ import {
 
 
 export const signUp = async (req: Request, res: Response) => {
+  
   const {
     firstName,
     lastName,
